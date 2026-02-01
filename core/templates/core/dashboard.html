@@ -8,20 +8,54 @@
   <body>
     <h1>Your Job Applications</h1>
     <ul id="job-list"></ul>
+    <h2>Add Job</h2>
+
+    <form id="job-form">
+      <input type="text" id="company" placeholder="Company" required />
+      <input type="text" id="role" placeholder="Role" required />
+      <textarea id="notes" placeholder="Notes"></textarea>
+      <button type="submit">Add Job</button>
+    </form>
     <script>
-      fetch("api/jobs", {
-        headers: {
-          "X-CSRFToken": "{{csrf_token}}",
-        },
-      })
-        .then((res) => res.json())
-        .then((data) => {
-          const list = document.getElementById("job-list");
-          data.forEach((job) => {
-            const li = document.createElement("li");
-            li.textContent = job.company_name + "-" + job.role;
-            list.appendChild(li);
+      const jobList = document.getElementById("job-list");
+      function loadJobs() {
+        fetch("/api/jobs/")
+          .then((res) => res.json())
+          .then((data) => {
+            jobList.innerHTML = "";
+            data.forEach((job) => {
+              const li = document.createElement("li");
+              li.textContent = job.company_name + "-" + job.role;
+              jobList.appendChild(li);
+            });
           });
+      }
+      loadJobs();
+      document
+        .getElementById("job-form")
+        .addEventListener("submit", function (e) {
+          e.preventDefault();
+          const company = document.getElementById("company").value;
+          const role = document.getElementById("role").value;
+          const notes = document.getElementById("notes").value;
+
+          fetch("/api/jobs/", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "X-CSRFToken": "{{ csrf_token }}",
+            },
+            body: JSON.stringify({
+              company_name: company,
+              role: role,
+              notes: notes,
+            }),
+          })
+            .then((res) => res.json())
+            .then(() => {
+              loadJobs();
+              document.getElementById("job-form").reset();
+            });
         });
     </script>
   </body>
