@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Job Tracker Dashboard</title>
+  </head>
+  <body>
+    <h1>Your Job Applications</h1>
+    <ul id="job-list"></ul>
+    <script>
+      fetch("api/jobs", {
+        headers: {
+          "X-CSRFToken": "{{csrf_token}}",
+        },
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          const list = document.getElementById("job-list");
+          data.forEach((job) => {
+            const li = document.createElement("li");
+            li.textContent = job.company_name + "-" + job.role;
+            list.appendChild(li);
+          });
+        });
+    </script>
+  </body>
+</html>
